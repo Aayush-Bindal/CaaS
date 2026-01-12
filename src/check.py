@@ -1,6 +1,6 @@
 def check(tup):
     new = tup[0]
-    fp = open(".//..//data.txt", "r")
+    fp = open("data.txt", "r")
     old = fp.readline()
     try:
         if int(old) == new:
@@ -20,6 +20,6 @@ def check(tup):
         return True
 
 def update(val):
-    fp = open(".//..//data.txt", "w")
+    fp = open("data.txt", "w")
     fp.write(str(val))
     fp.close
