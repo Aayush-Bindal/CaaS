@@ -1,0 +1,65 @@
+name: CG Fetcher Automation
+
+on:
+  schedule:
+    # GitHub Actions minimum reliable interval is usually 5 minutes. 
+    # Attempting 3 minutes often results in skipped runs. Set to 5 for stability.
+    - cron: '*/5 * * * *'
+  workflow_dispatch: # Allows you to manually trigger the button on GitHub
+
+permissions:
+  contents: write # Essential for pushing the updated data.txt back
+
+jobs:
+  run-monitor:
+    runs-on: ubuntu-latest
+    
+    steps:
+      # 1. Checkout the Code (Main Branch)
+      - name: Checkout Code
+        uses: actions/checkout@v4
+        with:
+          ref: main
+
+      # 2. Fetch the latest data.txt from the storage branch (value_updates)
+      # If the branch doesn't exist yet (first run), we skip this.
+      - name: Restore Persistence Data
+        continue-on-error: true
+        run: |
+          git fetch origin value_updates:value_updates || echo "No value_updates branch found yet."
+          git checkout value_updates -- data.txt || echo "No existing data.txt found in storage."
+
+      # 3. Setup Python
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      # 4. Install Dependencies
+      - name: Install Dependencies
+        run: |
+          pip install -r requirements.txt
+
+      # 5. Create .env file from Secrets
+      # This creates the file strictly for this run; it is never committed.
+      - name: Create .env
+        run: |
+          echo "USSR_ID=${{ secrets.USSR_ID }}" >> .env
+          echo "PIN=${{ secrets.PIN }}" >> .env
+          echo "TELEGRAM_TOKEN=${{ secrets.TELEGRAM_TOKEN }}" >> .env
+          echo "TELEGRAM_CHAT_ID=${{ secrets.TELEGRAM_CHAT_ID }}" >> .env
+
+      # 6. Run the Main Script
+      - name: Run CG Fetcher
+        run: python main.py
+
+      # 7. Use the Auto Commit Action to handle the rest
+      - name: Git Auto Commit
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: CG Updates 🚀 
+          branch: value_updates # make sure the branch being monitored and updates are exact same!
+          file_pattern: data.txt
+          # We use force push because we are managing this branch as a data storage
+          push_options: '--force'
+          skip_dirty_check: false
