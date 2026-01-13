@@ -9,10 +9,11 @@ def check(tup):
         else:
             if new == -1:
                 fp.close()
+                return False
+            if new > old:
+                fp.close()
+                update(new)
                 return True
-            fp.close()
-            update(new)
-            return True
     except Exception as e:
         print(f"An error occurred: {e}")
         fp.close()
