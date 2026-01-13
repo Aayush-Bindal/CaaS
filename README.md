@@ -1,6 +1,6 @@
 # 🎓 CaaS: CGPA as a Service
 
-**CaaS** is an automated monitoring tool designed to track your academic progress on the Webkiosk portal. It runs strictly in the cloud using **GitHub Actions**, checks for updates to your CGPA or Grades at set intervals, and instantly notifies you via **Telegram** if any changes are detected.
+**CaaS** is an automated monitoring tool designed to track your academic progress on the Webkiosk portal. It runs strictly in the cloud using **GitHub Actions**, checks for updates to your CGPA at set intervals, and instantly notifies you via **Telegram** if any changes are detected.
 
 It uses a smart persistence system (`value_updates` branch) to remember your previous data, so you only get alerted when something *actually* changes.
 
@@ -17,23 +17,26 @@ It uses a smart persistence system (`value_updates` branch) to remember your pre
 
 ## 🛠️ Project Structure
 
-- `main.py`: The entry point script that orchestrates the fetching and comparison logic.
-- `src/`: Contains the core modules (Webkiosk fetcher and parser logic and Telegram notification system).
-- `data.txt`: A file used to store the last known state of your grades/CGPA.
-- `requirements.txt`: List of Python libraries required (e.g., `requests`, `beautifulsoup4`).
-- `.github/workflows/cg_fetcher.yml`: The automation configuration file that schedules the runs.
+**CaaS**
+|
+|-main.py
+|-src/
+|
+|-data.txt
+|-requirements.txt
+|-.env
+|
 
 ---
 
 ## ⚙️ Setup Guide
 
-Follow these steps to set up your own instance of the CaaS monitor.
 
 ### 1. Fork the Repository
 Click the **Fork** button in the top-right corner of this repository to create your own copy under your GitHub account.
 
 ### 2. Configure Telegram Credentials
-You need two things from Telegram: a **Bot Token** and your **Chat ID**.
+You need two things from Telegram: **Bot Token** and your **Chat ID**.
 
 #### A. Get Bot Token
 1. Open Telegram and search for **@BotFather**.
@@ -80,7 +83,7 @@ By default, workflows in forked repositories are disabled.
 
 ## 🖥️ How It Works (Under the Hood)
 
-1. **Trigger**: The workflow wakes up every 5 minutes (or on manual trigger).
+1. **Trigger**: The workflow wakes up every 5 minutes or so (or on manual trigger).
 2. **Environment Setup**: It creates a temporary `.env` file using the Secrets you provided.
 3. **Restore State**: It fetches the `data.txt` file from the `value_updates` branch (this is where the "memory" lives).
 4. **Execution**: It runs `main.py`, which:
@@ -90,17 +93,3 @@ By default, workflows in forked repositories are disabled.
    - If changed -> Sends Telegram Message & Updates `data.txt`.
 5. **Save State**: If `data.txt` was updated, the workflow pushes the new file back to the `value_updates` branch using `git-auto-commit`, ready for the next run.
 
----
-
-## ⚠️ Troubleshooting
-
-**Q: Workflow not running every 5 minutes?** A: GitHub Actions runs on a queue. A "5-minute" schedule might sometimes take 10-15 minutes to trigger depending on server load. This is normal behavior for GitHub's free tier.
-
-**Q: "Login Failed" error?** A: Double-check your `USSR_ID` in the Secrets tab. Ensure it doesn't have trailing spaces or typos.
-
-**Q: "No updates received"?** A: The bot only messages you when there is a *change*. If your grades haven't changed, it stays silent. Check the **Actions** tab logs to verify it ran successfully.
-
----
-
-## 📜 License
-This project is licensed under the MIT License - see the LICENSE file for details.
