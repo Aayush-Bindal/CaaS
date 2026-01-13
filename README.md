@@ -17,15 +17,15 @@ It uses a smart persistence system (`value_updates` branch) to remember your pre
 
 ## 🛠️ Project Structure
 
-**CaaS**
-|
-|-main.py
-|-src/
-|
-|-data.txt
-|-requirements.txt
-|-.env
-|
+**CaaS**\n
+|\n
+|-main.py\n
+|-src/\n
+|\n
+|-data.txt\n
+|-requirements.txt\n
+|-.env\n
+|\n
 
 ---
 
