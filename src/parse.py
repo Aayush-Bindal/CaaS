@@ -1,16 +1,47 @@
+import hashlib
+
 from bs4 import BeautifulSoup
+
+
+def hash_cg_data(data: list[list[str]]) -> str:
+    sha256 = hashlib.sha256()
+    
+    for inner_list in data:
+        # This ensures ['a', 'b'] is distinct from ['ab']
+        inner_str = '\0'.join(inner_list)
+        
+        # This ensures [['a'], ['b']] is distinct from [['a', 'b']]
+        inner_str += '\0\0' 
+        
+        # 3. Update the hash
+        sha256.update(inner_str.encode('utf-8'))
+
+    return sha256.hexdigest()
+
 def make_sense(html_doc):
     if not html_doc:
-        return (-1, [])
+        return (-1, "", [])
     soup = BeautifulSoup(html_doc, 'html.parser')
     soup.find("tbody")
     #rows = soup.find_all("tr")
     rows = soup.select("#table-1 > tbody > tr")
     row_num = len(rows)
-    #print(row_num)
+    all_cg_data: list[list[str]] = []
     msg = list()
     for i in range(1,row_num+1):
         message = ''
-        message = message + soup.select_one(f"#table-1 > tbody > tr:nth-child({i}) > td:nth-child(1)").text + " : " + soup.select_one(f"#table-1 > tbody > tr:nth-child({i}) > td:nth-child(5)").text + " | " + soup.select_one(f"#table-1 > tbody > tr:nth-child({i}) > td:nth-child(6)").text + "."
+        sem_code = soup.select_one(f"#table-1 > tbody > tr:nth-child({i}) > td:nth-child(1)").text
+        sgpa = soup.select_one(f"#table-1 > tbody > tr:nth-child({i}) > td:nth-child(5)").text
+        cgpa = soup.select_one(f"#table-1 > tbody > tr:nth-child({i}) > td:nth-child(6)").text
+        message = message + sem_code + " : " + sgpa + " | " + cgpa + "."
         msg.append(message)
-    return (row_num, msg)
+
+        ## Maintain whole sem table
+        sem_data = []
+        for j in range(1,7):
+            col = rows[i-1].select_one(f"td:nth-child({j})")
+            col = col.text.strip() if col else ""
+            sem_data.append(col)
+        all_cg_data.append(sem_data)
+    hashed_cg = hash_cg_data(all_cg_data)
+    return (row_num, hashed_cg, msg)

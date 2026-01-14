@@ -1,19 +1,19 @@
-from src.fetch import get_html
-from src.parse import make_sense
+from environs import env
+
 from src.check import check
+from src.fetch import get_html
 from src.notify import send_telegram_msg
-
-
+from src.parse import make_sense
 
 print("----------START----------")
-
+env.read_env()
 html = get_html()
-msg = make_sense(html)
-for i in range(0, msg[0]):
-   print(msg[1][i])
-ans = check(msg)
+row_num, hashed_cg, msg_list = make_sense(html)
+for i in range(0, row_num):
+   print(msg_list[i])
+ans = check(row_num, hashed_cg)
 if ans:
    print("notifying!!!")
-   send_telegram_msg(msg)
+   send_telegram_msg(msg_list)
 
 print("-----------END-----------")
