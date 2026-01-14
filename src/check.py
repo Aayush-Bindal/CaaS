@@ -18,8 +18,7 @@ def check(tup):
         print(f"An error occurred: {e}")
         print("Forcefully updating to fetched content!")
         fp.close()
-        update(new)
-        return True
+        return False
 
 def update(val):
     fp = open("data.txt", "w")
