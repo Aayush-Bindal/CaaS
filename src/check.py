@@ -1,26 +1,32 @@
-def check(tup):
-    new = tup[0]
-    fp = open("data.txt", "r")
-    old = fp.readline()
-    try:
-        if int(old) == new:
-            fp.close()
-            return False 
-        else:
-            if new == -1:
-                fp.close()
-                return False
-            if new > old:
-                fp.close()
-                update(new)
-                return True
-    except Exception as e:
-        print(f"An error occurred: {e}")
-        print("Forcefully updating to fetched content!")
-        fp.close()
-        return False
+import re
 
-def update(val):
-    fp = open("data.txt", "w")
-    fp.write(str(val))
-    fp.close
+
+def check(row_num: int, hashed_cg: str):
+    new_num = row_num
+    new_hash = hashed_cg
+    with open("data.txt", "r") as fp:
+        line = fp.readline()
+    extract_re = re.compile(r"(\d+):(.*)")
+    matches = extract_re.match(line)
+
+    old_num = -1
+    old_hash = ""
+    if matches:
+        try:
+            old_num = int(matches.group(1).strip())
+            old_hash = matches.group(2)
+        except Exception:
+            old_num = -1
+
+    if old_num == row_num:
+        return False 
+    else:
+        if new_num == -1:
+            return False
+        if new_num > old_num or (new_num == old_num or old_hash != new_hash):
+            update(f"{new_num}:{new_hash}")
+            return True
+
+def update(val: str):
+    with open("data.txt", "w") as fp:
+        fp.write(val)

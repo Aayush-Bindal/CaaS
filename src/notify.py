@@ -1,6 +1,7 @@
 import requests
 from environs import env
 
+
 def send_telegram_msg(messages):
     env.read_env()
     # Get credentials from environment variables (Set these in GitHub Secrets/Local Env)
